@@ -20,15 +20,28 @@ import javax.persistence.TypedQuery;
  * @author MariHaugen
  */
 public class PersonFacade implements IPersonFacade {
+    private static PersonFacade instance;
+    private static EntityManagerFactory emf;
+    
+    public static PersonFacade getPersonFacade(EntityManagerFactory _emf) {
+        if (instance == null) {
+            emf = _emf;
+            instance = new PersonFacade();
+        }
+        return instance;
+    }
 
+    private EntityManager getEntityManager() {
+        return emf.createEntityManager();
+    }        
+    
     @Override
     public PersonsDTO getAllPersons() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("pu");
         EntityManager em = emf.createEntityManager();
-        TypedQuery<Person> query = em.createQuery("SELECT p for Person p", Person.class);
+        TypedQuery<Person> query = em.createQuery("SELECT p FROM Person p", Person.class);
         List<Person> persons = query.getResultList();
-
-        return new PersonsDTO(persons);
+        PersonsDTO personsDTO = new PersonsDTO(persons);
+        return personsDTO;
 
     }
 
@@ -52,6 +65,7 @@ public class PersonFacade implements IPersonFacade {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    //TODO - TEST - SKAL SLETTES
     public static void main(String[] args) {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("pu");
         EntityManager em = emf.createEntityManager();
@@ -66,10 +80,7 @@ public class PersonFacade implements IPersonFacade {
 
         em.getTransaction().commit();
 
-        PersonFacade pf = new PersonFacade();
-
-        System.out.println(pf.getAllPersons());
 
     }
-
+    
 }

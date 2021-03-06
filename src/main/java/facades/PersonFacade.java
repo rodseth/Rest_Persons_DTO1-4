@@ -40,19 +40,32 @@ public class PersonFacade implements IPersonFacade {
         EntityManager em = emf.createEntityManager();
         TypedQuery<Person> query = em.createQuery("SELECT p FROM Person p", Person.class);
         List<Person> persons = query.getResultList();
-        PersonsDTO personsDTO = new PersonsDTO(persons);
-        return personsDTO;
+        
+        return new PersonsDTO(persons);
 
     }
 
     @Override
     public PersonDTO getPerson(int id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        EntityManager em = emf.createEntityManager();
+        TypedQuery<Person> query = em.createQuery("SELECT p FROM Person p where p.id = :id", Person.class);
+        query.setParameter("id", id);
+        Person person = query.getSingleResult();
+        
+        return new PersonDTO(person);
+        
     }
 
     @Override
     public PersonDTO addPerson(String fName, String lName, String phone) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        EntityManager em = emf.createEntityManager();
+        Person person = new Person(fName, lName, phone);
+        em.getTransaction().begin();
+        em.persist(person);
+        em.getTransaction().commit();
+        em.close();
+        
+        return new PersonDTO(person);
     }
 
     @Override
@@ -65,22 +78,4 @@ public class PersonFacade implements IPersonFacade {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    //TODO - TEST - SKAL SLETTES
-    public static void main(String[] args) {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("pu");
-        EntityManager em = emf.createEntityManager();
-
-        Person p1 = new Person("Mari", "Haugen", "123456");
-        Person p2 = new Person("Cathrine", "Christensen", "654321");
-
-        em.getTransaction().begin();
-
-        em.persist(p1);
-        em.persist(p2);
-
-        em.getTransaction().commit();
-
-
-    }
-    
 }
